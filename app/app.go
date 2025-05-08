@@ -3,8 +3,16 @@ package app
 import (
 	"errors"
     "fmt"
+    "encoding/json"
+    "time"
+
+    "github.com/dnstapir/tapir"
+
     "github.com/dnstapir/tapir-analyse-looptest/app/ext"
 )
+
+type TapirMsg=tapir.TapirMsg
+type Domain=tapir.Domain
 
 type App struct {
 	Log       ext.Logger
@@ -73,7 +81,34 @@ func (a *App) Stop() error {
 
 func (a *App) handleMsg(msg string) {
     a.Log.Info("Received message '%s'", msg)
-    err := a.Nats.Publish(fmt.Sprintf("Returning: %s", msg))
+
+    domain := Domain {
+        Name:         fmt.Sprintf("%s.com.", msg),
+        TimeAdded:    time.Now(),
+        TTL:          3600,
+        TagMask:      1024,
+        ExtendedTags: []string{},
+    }
+
+    tapirMsg := TapirMsg{
+        SrcName:  "dns-tapir",
+        Creator:  "",
+        MsgType:  "observation",
+        ListType: "doubtlist",
+        Added:    []Domain{domain},
+        Removed:  []Domain{},
+	    Msg:      "",
+        TimeStamp: time.Now(),
+        TimeStr:   "",
+    }
+
+    outMsg, err := json.Marshal(tapirMsg)
+    if err != nil {
+        a.Log.Error("Error serializing message, discarding...")
+        return
+    }
+
+    err = a.Nats.Publish(string(outMsg))
     if err != nil {
         a.Log.Error("Error publishing nats message!")
     }
