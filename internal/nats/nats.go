@@ -2,34 +2,36 @@ package nats
 
 import (
 	"github.com/nats-io/nats.go"
+
+    "github.com/dnstapir/tapir-analyse-looptest/app/ext"
 )
 
 type Client struct {
-    url string
-    inSubject string
-    outSubject string
-    queue string
-}
-
-func CreateClient(url, inSubject, outSubject, queue string) (Client, error) {
-    return Client{url, inSubject, outSubject, queue}, nil
+    Url        string
+    InSubject  string
+    OutSubject string
+    Queue      string
+	Log        ext.Logger
 }
 
 func (c Client) ActivateSubscription() (<-chan string, error) {
-	nc, err := nats.Connect(c.url)
+	nc, err := nats.Connect(c.Url)
 	if err != nil {
+        c.Log.Error("Error connecting to nats server: %s", err)
 		return nil, err
 	}
 
 	rawCh := make(chan *nats.Msg)
-	_, err = nc.ChanQueueSubscribe(c.inSubject, c.queue, rawCh)
+	_, err = nc.ChanQueueSubscribe(c.InSubject, c.Queue, rawCh)
 	if err != nil {
+        c.Log.Error("Error subscribing to nats subject: %s", err)
         return nil, err
 	}
 
 	strCh := make(chan string)
     go func() {
         for msg := range rawCh {
+            c.Log.Debug("Got raw data: %s", string(msg.Data))
             strCh <- string(msg.Data)
             msg.Ack()
         }
@@ -40,12 +42,12 @@ func (c Client) ActivateSubscription() (<-chan string, error) {
 }
 
 func (c Client) Publish(msg string) error {
-	nc, err := nats.Connect(c.url)
+	nc, err := nats.Connect(c.Url)
 	if err != nil {
 		return err
 	}
 
-	natsMsg := nats.NewMsg(c.outSubject)
+	natsMsg := nats.NewMsg(c.OutSubject)
 	natsMsg.Data = []byte(msg)
 
 	err = nc.PublishMsg(natsMsg)

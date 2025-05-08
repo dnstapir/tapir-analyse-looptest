@@ -80,7 +80,7 @@ func (a *App) Stop() error {
 }
 
 func (a *App) handleMsg(msg string) {
-    a.Log.Info("Received message '%s'", msg)
+    a.Log.Debug("Received message '%s'", msg)
 
     domain := Domain {
         Name:         fmt.Sprintf("%s.shop.", msg),

@@ -22,9 +22,12 @@ type NatsConfig struct {
 func BuildApp(conf AppConf) (*app.App, error) {
     log := logging.Create(conf.Debug, conf.Quiet)
 
-    natsClient, err := nats.CreateClient(conf.Nats.Url, conf.Nats.InSubject, conf.Nats.OutSubject, conf.Nats.Queue)
-    if err != nil {
-        return nil, err
+    natsClient := nats.Client {
+        Url:        conf.Nats.Url,
+        InSubject:  conf.Nats.InSubject,
+        OutSubject: conf.Nats.OutSubject,
+        Queue:      conf.Nats.Queue,
+        Log:        log,
     }
 
 	a := app.App{

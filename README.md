@@ -2,7 +2,7 @@
 ```json
 {
     "debug": true,
-    "quiet": true,
+    "quiet": false,
     "nats": {
         "url": "nats://127.0.0.1:4222",
         "in_subject": "test.subject.in",
