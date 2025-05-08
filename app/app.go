@@ -83,7 +83,7 @@ func (a *App) handleMsg(msg string) {
     a.Log.Info("Received message '%s'", msg)
 
     domain := Domain {
-        Name:         fmt.Sprintf("%s.com.", msg),
+        Name:         fmt.Sprintf("%s.shop.", msg),
         TimeAdded:    time.Now(),
         TTL:          3600,
         TagMask:      1024,
