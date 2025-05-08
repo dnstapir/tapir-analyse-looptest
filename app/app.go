@@ -2,21 +2,14 @@ package app
 
 import (
 	"errors"
-    "fmt"
-    "encoding/json"
-    "time"
-
-    "github.com/dnstapir/tapir"
 
     "github.com/dnstapir/tapir-analyse-looptest/app/ext"
 )
 
-type TapirMsg=tapir.TapirMsg
-type Domain=tapir.Domain
-
 type App struct {
 	Log       ext.Logger
     Nats      nats
+    Tapir     tapir
 	isRunning bool
     doneChan  chan error
     stopChan  chan bool
@@ -25,6 +18,10 @@ type App struct {
 type nats interface {
     ActivateSubscription() (<-chan string, error)
     Publish(msg string) error
+}
+
+type tapir interface {
+    GenerateMsg(domain string, flags uint32) (string, error)
 }
 
 func (a *App) Run() <-chan error {
@@ -82,29 +79,9 @@ func (a *App) Stop() error {
 func (a *App) handleMsg(msg string) {
     a.Log.Debug("Received message '%s'", msg)
 
-    domain := Domain {
-        Name:         fmt.Sprintf("%s.shop.", msg),
-        TimeAdded:    time.Now(),
-        TTL:          3600,
-        TagMask:      1024,
-        ExtendedTags: []string{},
-    }
-
-    tapirMsg := TapirMsg{
-        SrcName:  "dns-tapir",
-        Creator:  "",
-        MsgType:  "observation",
-        ListType: "doubtlist",
-        Added:    []Domain{domain},
-        Removed:  []Domain{},
-	    Msg:      "",
-        TimeStamp: time.Now(),
-        TimeStr:   "",
-    }
-
-    outMsg, err := json.Marshal(tapirMsg)
+    outMsg, err := a.Tapir.GenerateMsg(msg, 2048)
     if err != nil {
-        a.Log.Error("Error serializing message, discarding...")
+        a.Log.Error("Error generating message: %s", err)
         return
     }
 

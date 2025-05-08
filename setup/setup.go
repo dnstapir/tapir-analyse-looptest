@@ -4,6 +4,7 @@ import (
     "github.com/dnstapir/tapir-analyse-looptest/app"
     "github.com/dnstapir/tapir-analyse-looptest/internal/logging"
     "github.com/dnstapir/tapir-analyse-looptest/internal/nats"
+    "github.com/dnstapir/tapir-analyse-looptest/internal/tapir"
 )
 
 type AppConf struct {
@@ -30,9 +31,14 @@ func BuildApp(conf AppConf) (*app.App, error) {
         Log:        log,
     }
 
+    tapirHandle := tapir.Handle{
+        Log: log,
+    }
+
 	a := app.App{
         Log:  log,
         Nats: natsClient,
+        Tapir: tapirHandle,
     }
 
 	return &a, nil

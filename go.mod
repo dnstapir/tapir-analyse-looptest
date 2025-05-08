@@ -3,7 +3,7 @@ module github.com/dnstapir/tapir-analyse-looptest
 go 1.23.6
 
 require (
-	github.com/dnstapir/tapir v0.0.0-20250502205931-1bd84f232ce7
+	github.com/dnstapir/tapir v0.0.0-20250508212731-b927409c5f49
 	github.com/nats-io/nats.go v1.42.0
 )
 
@@ -32,6 +32,7 @@ require (
 	github.com/ryanuber/columnize v2.1.2+incompatible // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
+	github.com/santhosh-tekuri/jsonschema/v6 v6.0.1 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
 	github.com/smhanov/dawg v0.0.0-20220118194912-66057bdbf2e3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect

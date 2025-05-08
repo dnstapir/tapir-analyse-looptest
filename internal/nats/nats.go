@@ -42,8 +42,10 @@ func (c Client) ActivateSubscription() (<-chan string, error) {
 }
 
 func (c Client) Publish(msg string) error {
+    c.Log.Debug("Attempting to send message: %s")
 	nc, err := nats.Connect(c.Url)
 	if err != nil {
+        c.Log.Error("Error connecting to NATS server")
 		return err
 	}
 
@@ -52,6 +54,7 @@ func (c Client) Publish(msg string) error {
 
 	err = nc.PublishMsg(natsMsg)
 	if err != nil {
+        c.Log.Error("Error publishing to NATS server")
         return err
 	}
 
