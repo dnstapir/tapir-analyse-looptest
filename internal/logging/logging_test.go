@@ -4,28 +4,82 @@ import (
 	"testing"
 )
 
-func TestLoggingCreateNoError(t *testing.T) {
+func TestLoggingDebugNoPanic(t *testing.T) {
 	var tests = []struct {
 		name     string
-		indata   int
-		expected error
+		indata1  bool
+		indata2  bool
 	}{
-		{"1", 1, nil},
-		{"2", 2, nil},
-		{"3", 3, nil},
-		{"4", 4, nil},
-		{"5", 5, nil},
+		{"true-true",  true,  true},
+		{"true-false", true,  false},
+		{"false-true", false, true},
+		{"true-true",  false, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-            conf := Config{
-                Level: tt.indata,
-            }
-			_, got := Create(conf)
-			if got != tt.expected {
-				t.Fatalf("got %q, expected %q", got, tt.expected)
-			}
+            l := Create(tt.indata1, tt.indata2)
+			l.Debug("nothing")
+		})
+	}
+}
+
+func TestLoggingInfoNoPanic(t *testing.T) {
+	var tests = []struct {
+		name     string
+		indata1  bool
+		indata2  bool
+	}{
+		{"true-true",  true,  true},
+		{"true-false", true,  false},
+		{"false-true", false, true},
+		{"true-true",  false, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+            l := Create(tt.indata1, tt.indata2)
+			l.Info("nothing")
+		})
+	}
+}
+
+func TestLoggingWarningNoPanic(t *testing.T) {
+	var tests = []struct {
+		name     string
+		indata1  bool
+		indata2  bool
+	}{
+		{"true-true",  true,  true},
+		{"true-false", true,  false},
+		{"false-true", false, true},
+		{"true-true",  false, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+            l := Create(tt.indata1, tt.indata2)
+			l.Warning("nothing")
+		})
+	}
+}
+
+func TestLoggingErrorNoPanic(t *testing.T) {
+	var tests = []struct {
+		name     string
+		indata1  bool
+		indata2  bool
+	}{
+		{"true-true",  true,  true},
+		{"true-false", true,  false},
+		{"false-true", false, true},
+		{"true-true",  false, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+            l := Create(tt.indata1, tt.indata2)
+			l.Error("nothing")
 		})
 	}
 }
@@ -48,102 +102,6 @@ func TestLoggingFormat(t *testing.T) {
 			if got != tt.expected {
 				t.Fatalf("got %s, expected %s", got, tt.expected)
 			}
-		})
-	}
-}
-
-func TestLoggingDebugNoPanic(t *testing.T) {
-	var tests = []struct {
-		name     string
-		indata   int
-		expected error
-	}{
-		{"1", 1, nil},
-		{"2", 2, nil},
-		{"3", 3, nil},
-		{"4", 4, nil},
-		{"5", 5, nil},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-            conf := Config{
-                Level: tt.indata,
-            }
-			l, _ := Create(conf)
-			l.Debug("nothing")
-		})
-	}
-}
-
-func TestLoggingInfoNoPanic(t *testing.T) {
-	var tests = []struct {
-		name     string
-		indata   int
-		expected error
-	}{
-		{"1", 1, nil},
-		{"2", 2, nil},
-		{"3", 3, nil},
-		{"4", 4, nil},
-		{"5", 5, nil},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-            conf := Config{
-                Level: tt.indata,
-            }
-			l, _ := Create(conf)
-			l.Info("nothing")
-		})
-	}
-}
-
-func TestLoggingWarningNoPanic(t *testing.T) {
-	var tests = []struct {
-		name     string
-		indata   int
-		expected error
-	}{
-		{"1", 1, nil},
-		{"2", 2, nil},
-		{"3", 3, nil},
-		{"4", 4, nil},
-		{"5", 5, nil},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-            conf := Config{
-                Level: tt.indata,
-            }
-			l, _ := Create(conf)
-			l.Warning("nothing")
-		})
-	}
-}
-
-func TestLoggingErrorNoPanic(t *testing.T) {
-	var tests = []struct {
-		name     string
-		indata   int
-		expected error
-	}{
-		{"1", 1, nil},
-		{"2", 2, nil},
-		{"3", 3, nil},
-		{"4", 4, nil},
-		{"5", 5, nil},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-            conf := Config{
-                Level: tt.indata,
-            }
-			l, _ := Create(conf)
-			l.Error("nothing")
 		})
 	}
 }
