@@ -14,6 +14,8 @@ import (
 /* Rewritten if building with make */
 var version = "BAD-BUILD"
 
+const c_ENVVAR_OVERRIDE_NATS_URL = "TAPIR_ANALYSE_LOOPTEST_NATS_URL"
+
 func main() {
 	var configFile string
 	var runVersionCmd bool
@@ -70,6 +72,11 @@ func main() {
 	if quietFlag {
 		mainConf.Quiet = true
 	}
+
+    envNatsUrl, overrideNatsUrl := os.LookupEnv(c_ENVVAR_OVERRIDE_NATS_URL)
+    if overrideNatsUrl {
+        mainConf.Nats.Url = envNatsUrl
+    }
 
 	application, err := setup.BuildApp(mainConf)
 	if err != nil {
