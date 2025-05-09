@@ -5,6 +5,7 @@ import (
     "github.com/dnstapir/tapir-analyse-looptest/internal/logging"
     "github.com/dnstapir/tapir-analyse-looptest/internal/nats"
     "github.com/dnstapir/tapir-analyse-looptest/internal/tapir"
+    "github.com/dnstapir/tapir-analyse-looptest/internal/ticker"
 )
 
 type AppConf struct {
@@ -35,10 +36,15 @@ func BuildApp(conf AppConf) (*app.App, error) {
         Log: log,
     }
 
+    tickerHandle := ticker.Handle{
+        Log: log,
+    }
+
 	a := app.App{
         Log:  log,
         Nats: natsClient,
         Tapir: tapirHandle,
+        Ticker: &tickerHandle,
     }
 
 	return &a, nil

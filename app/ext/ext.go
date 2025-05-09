@@ -7,16 +7,16 @@ type Logger interface {
 	Error(fmtStr string, vals ...any)
 }
 
-type NullLogger struct{}
+type FakeLogger struct{}
 
-func (n NullLogger) Debug(fmtStr string, vals ...any) {
+func (f FakeLogger) Debug(fmtStr string, vals ...any) {
 }
 
-func (n NullLogger) Info(fmtStr string, vals ...any) {
+func (f FakeLogger) Info(fmtStr string, vals ...any) {
 }
 
-func (n NullLogger) Warning(fmtStr string, vals ...any) {
+func (f FakeLogger) Warning(fmtStr string, vals ...any) {
 }
 
-func (n NullLogger) Error(fmtStr string, vals ...any) {
+func (f FakeLogger) Error(fmtStr string, vals ...any) {
 }

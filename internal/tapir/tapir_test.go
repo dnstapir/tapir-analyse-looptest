@@ -24,7 +24,7 @@ func TestSchemaValidationSha90202b31(t *testing.T) {
 	}
 
     tapirHandle := Handle {
-        Log: ext.NullLogger{},
+        Log: ext.FakeLogger{},
     }
 
 	for _, tt := range tests {

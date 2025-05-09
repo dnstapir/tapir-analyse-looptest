@@ -88,6 +88,12 @@ func main() {
     defer close(sigChan)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
+	err = application.Initialize()
+	if err != nil {
+		fmt.Printf("Error initializing application: '%s', exiting...\n", err)
+		os.Exit(-1)
+	}
+
 	done := application.Run()
 
 	select {
