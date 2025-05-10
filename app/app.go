@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+    "strings"
 	"sync"
 
 	"github.com/dnstapir/tapir-analyse-looptest/app/ext"
@@ -20,12 +21,13 @@ type App struct {
 }
 
 type nats interface {
-	ActivateSubscription() (<-chan string, error) /* Not used */
+	ActivateSubscription() (<-chan string, error)
 	Publish(msg string) error
 }
 
 type tapir interface {
 	GenerateMsg(domain string, flags uint32) (string, error)
+	ExtractDomain(msgJson string) (string, error)
 }
 
 type ticker interface {
@@ -68,10 +70,18 @@ func (a *App) Run() <-chan error {
 			return
 		}
 
+        msgChan, err := a.Nats.ActivateSubscription()
+        if err != nil {
+            a.doneChan <- errors.New("error activating nats subscription")
+            return
+        }
+
 		for {
 			select {
 			case tick := <-tickCh:
 				a.handleTick(tick)
+			case msg := <-msgChan:
+				a.handleMsg(msg)
 			case <-a.stopChan:
 				a.Log.Info("Stopping main worker thread")
 				return
@@ -111,6 +121,36 @@ func (a *App) handleTick(tick int64) {
 
 	tickDomain := fmt.Sprintf("epoch-%d.ticker.looptest.dnstapir.se.", tick)
 	outMsg, err := a.Tapir.GenerateMsg(tickDomain, 2048)
+	if err != nil {
+		a.Log.Error("Error generating message: %s", err)
+		return
+	}
+
+	err = a.Nats.Publish(string(outMsg))
+	if err != nil {
+		a.Log.Error("Error publishing nats message!")
+	}
+}
+
+func (a *App) handleMsg(msg string) {
+	a.Log.Debug("Received message '%s'", msg)
+	if msg == "" {
+		a.Log.Debug("Msg had zero value, probably garbage. Won't handle...")
+		return
+	}
+
+	msgDomain, err := a.Tapir.ExtractDomain(msg)
+	if err != nil {
+		a.Log.Error("Error reading domain from message: %s", err)
+		return
+	}
+
+    if !strings.HasSuffix(msgDomain, "from-edge.looptest.dnstapir.se") {
+		a.Log.Debug("Ignoring msg with domain '%s'", msgDomain)
+        return
+    }
+
+	outMsg, err := a.Tapir.GenerateMsg(msgDomain, 2048)
 	if err != nil {
 		a.Log.Error("Error generating message: %s", err)
 		return

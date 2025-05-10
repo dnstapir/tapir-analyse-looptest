@@ -2,9 +2,11 @@ package tapir
 
 import (
 	"encoding/json"
+    "strings"
 	"time"
 
 	"github.com/dnstapir/tapir"
+    "github.com/dnstapir/edm/pkg/protocols"
 
 	"github.com/dnstapir/tapir-analyse-looptest/app/ext"
 )
@@ -41,4 +43,19 @@ func (h Handle) GenerateMsg(domainStr string, flags uint32) (string, error) {
 	}
 
 	return string(outMsg), nil
+}
+
+func (h Handle) ExtractDomain(msgJson string) (string, error) {
+    var newQnameEvent protocols.EventsMqttMessageNewQnameJson
+    dec := json.NewDecoder(strings.NewReader(msgJson))
+
+	dec.DisallowUnknownFields()
+
+    err := dec.Decode(&newQnameEvent)
+    if err != nil {
+        h.Log.Error("Error decoding qname from 'new qname event' msg")
+        return "", err
+    }
+
+    return string(newQnameEvent.Qname), nil
 }

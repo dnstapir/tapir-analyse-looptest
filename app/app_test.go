@@ -46,6 +46,10 @@ func (ft fakeTapir) GenerateMsg(domain string, flags uint32) (string, error) {
 	return "fake-tapir", nil
 }
 
+func (ft fakeTapir) ExtractDomain(msgJson string) (string, error) {
+	return "fake-tapir", nil
+}
+
 type mockNats struct{}
 
 func (mn mockNats) ActivateSubscription() (<-chan string, error) {

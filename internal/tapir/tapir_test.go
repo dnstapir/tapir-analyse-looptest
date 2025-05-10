@@ -2,6 +2,7 @@ package tapir
 
 import (
 	"bytes"
+    "fmt"
 	"testing"
 
 	"github.com/santhosh-tekuri/jsonschema/v6"
@@ -47,4 +48,36 @@ func TestSchemaValidationSha90202b31(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestExtractDomain(t *testing.T) {
+	tapirHandle := Handle{
+		Log: ext.FakeLogger{},
+	}
+
+    msgFmt := `
+    {
+        "flags": 0,
+        "initiator": "test",
+        "qclass": 0,
+        "qname": "%s",
+        "qtype": 0,
+        "rdlength": 0,
+        "timestamp": "1985-04-12T23:20:50.52Z",
+        "type": "test",
+        "version": 0
+    }`
+
+    wanted := "wanted.xa"
+    msg := fmt.Sprintf(msgFmt, wanted)
+
+    domain, err := tapirHandle.ExtractDomain(msg)
+
+    if err != nil {
+        t.Fatalf("Error extracting domain: %s", err)
+    }
+
+    if domain != wanted {
+        t.Fatalf("Error expected: %s, got: %s", wanted, domain)
+    }
 }
