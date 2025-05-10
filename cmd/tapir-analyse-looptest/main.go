@@ -8,7 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
-    "github.com/dnstapir/tapir-analyse-looptest/setup"
+	"github.com/dnstapir/tapir-analyse-looptest/setup"
 )
 
 /* Rewritten if building with make */
@@ -73,10 +73,10 @@ func main() {
 		mainConf.Quiet = true
 	}
 
-    envNatsUrl, overrideNatsUrl := os.LookupEnv(c_ENVVAR_OVERRIDE_NATS_URL)
-    if overrideNatsUrl {
-        mainConf.Nats.Url = envNatsUrl
-    }
+	envNatsUrl, overrideNatsUrl := os.LookupEnv(c_ENVVAR_OVERRIDE_NATS_URL)
+	if overrideNatsUrl {
+		mainConf.Nats.Url = envNatsUrl
+	}
 
 	application, err := setup.BuildApp(mainConf)
 	if err != nil {
@@ -85,7 +85,7 @@ func main() {
 	}
 
 	sigChan := make(chan os.Signal, 1)
-    defer close(sigChan)
+	defer close(sigChan)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
 	err = application.Initialize()

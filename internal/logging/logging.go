@@ -13,13 +13,13 @@ type logger struct {
 func Create(debug, quiet bool) logger {
 	var programLevel = new(slog.LevelVar) // Info by default
 
-    /* quiet overrides debug */
+	/* quiet overrides debug */
 	if debug {
 		programLevel.Set(slog.LevelDebug)
 	}
-    if quiet {
-        programLevel.Set(slog.LevelWarn)
-    }
+	if quiet {
+		programLevel.Set(slog.LevelWarn)
+	}
 
 	h := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: programLevel})
 
