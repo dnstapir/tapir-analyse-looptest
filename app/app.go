@@ -50,6 +50,10 @@ func (a *App) Initialize() error {
 		return errors.New("no nats object")
 	}
 
+	if a.Tapir == nil {
+		return errors.New("no tapir object")
+	}
+
 	a.isInitialized = true
 	return nil
 }
@@ -145,7 +149,7 @@ func (a *App) handleMsg(msg string) {
 		return
 	}
 
-    if !strings.HasSuffix(msgDomain, "from-edge.looptest.dnstapir.se") {
+    if !strings.HasSuffix(msgDomain, "from-edge.looptest.dnstapir.se.") {
 		a.Log.Debug("Ignoring msg with domain '%s'", msgDomain)
         return
     }
