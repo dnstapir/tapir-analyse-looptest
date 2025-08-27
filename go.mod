@@ -7,7 +7,7 @@ toolchain go1.24.3
 require (
 	github.com/dnstapir/edm v0.0.0-20250328150622-a0bc971286cd
 	github.com/dnstapir/tapir v0.0.0-20250508212731-b927409c5f49
-	github.com/nats-io/nats.go v1.43.0
+	github.com/nats-io/nats.go v1.45.0
 	github.com/santhosh-tekuri/jsonschema/v6 v6.0.2
 )
 
