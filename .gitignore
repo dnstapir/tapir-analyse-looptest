@@ -7,3 +7,7 @@ coverage.out
 # Ignore configuration files
 *.json
 !internal/tapir/testdata/*.json
+
+# Ignore old files and backups
+*.old
+*.bak
