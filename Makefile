@@ -1,21 +1,32 @@
-VERSION:=`cat ./VERSION`
-COMMIT:=`git describe --dirty=+WiP --always 2> /dev/null || echo "no-vcs"`
+VERSION:=$(shell cat ./VERSION)
+COMMIT:=$(shell git describe --dirty=+WiP --always 2> /dev/null || echo "no-vcs")
+OUT:=$(CURDIR)/out
 
-.PHONY: test coverage fmt clean
+.PHONY: all build outdir test coverage fmt vet clean ko
 
-all:
-	go build -v -ldflags "-X 'main.version=$(VERSION)-$(COMMIT)'" -o ./bin/ ./cmd/...
+all: build
+
+build: outdir
+	go build -v -ldflags "-X main.commit=$(COMMIT)" -o $(OUT)/ ./cmd/...
+
+outdir:
+	-mkdir -p $(OUT)
 
 test:
 	go test ./...
 
-coverage:
-	go test -coverprofile=coverage.out ./...
-	go tool cover -html="coverage.out"
+coverage: outdir
+	go test -coverprofile=$(OUT)/coverage.out ./...
+	go tool cover -html="$(OUT)/coverage.out" -o $(OUT)/coverage.html
 
 fmt:
 	go fmt ./...
 
+vet:
+	go vet ./...
+
 clean:
-	-rm -rf ./bin/
-	-rm coverage.out
+	-rm -rf $(OUT)
+
+ko:
+	ko build -L -B ./cmd/tapir-analyse-looptest
