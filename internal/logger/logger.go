@@ -1,4 +1,6 @@
-package logging
+package logger
+
+/* Implements shared.LoggerIF */
 
 import (
 	"fmt"
@@ -8,24 +10,29 @@ import (
 
 type logger struct {
 	logger *slog.Logger
+	conf   Conf
 }
 
-func Create(debug, quiet bool) logger {
+type Conf struct {
+	Debug bool
+}
+
+func Create(conf Conf) (*logger, error) {
+	newLogger := new(logger)
 	var programLevel = new(slog.LevelVar) // Info by default
 
-	/* quiet overrides debug */
-	if debug {
+	if conf.Debug {
 		programLevel.Set(slog.LevelDebug)
-	}
-	if quiet {
-		programLevel.Set(slog.LevelWarn)
 	}
 
 	h := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{Level: programLevel})
 
 	l := slog.New(h)
 
-	return logger{logger: l}
+	newLogger.logger = l
+	newLogger.conf = conf
+
+	return newLogger, nil
 }
 
 func (l logger) Debug(fmtStr string, vals ...any) {
@@ -42,6 +49,10 @@ func (l logger) Warning(fmtStr string, vals ...any) {
 
 func (l logger) Error(fmtStr string, vals ...any) {
 	l.logger.Error(format(fmtStr, vals))
+}
+
+func (l logger) Refresh() error {
+	return nil
 }
 
 func format(fmtStr string, a []any) string {
