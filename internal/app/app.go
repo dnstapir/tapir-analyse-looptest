@@ -83,7 +83,7 @@ func Create(conf Conf) (*appHandle, error) {
 	if conf.LooptestMatchSuffix == "" {
 		a.log.Warning("No match suffix given for looptests. Will only run ticker tests")
 	}
-	a.looptestMatchSuffix = conf.LooptestMatchSuffix
+	a.looptestMatchSuffix = strings.ToLower(strings.Trim(conf.LooptestMatchSuffix, "."))
 
 	a.log.Debug("Main app debug logging enabled")
 	return a, nil
@@ -201,7 +201,7 @@ func (a *appHandle) handleMsg(ctx context.Context, msg common.NatsMsg) {
 		return
 	}
 
-	if !strings.HasSuffix(msgDomain, a.looptestMatchSuffix) {
+	if !strings.HasSuffix(msgDomain, "."+a.looptestMatchSuffix) {
 		return
 	}
 
