@@ -1,14 +1,15 @@
 module github.com/dnstapir/tapir-analyse-looptest
 
-go 1.25.6
+go 1.26.1
 
 require (
-	github.com/dnstapir/edm v0.0.0-20260127093020-49e2140c43d6
+	github.com/dnstapir/edm v0.0.0-20260226140325-d0441597d9e7
 	github.com/nats-io/nats.go v1.49.0
 	github.com/pelletier/go-toml/v2 v2.2.4
 )
 
 require (
+	github.com/dnstapir/tapir-analyse-lib v0.0.0-20260319145549-171c55292770 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/klauspost/compress v1.18.3 // indirect
 	github.com/miekg/dns v1.1.72 // indirect

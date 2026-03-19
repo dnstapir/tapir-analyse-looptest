@@ -8,7 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dnstapir/tapir-analyse-looptest/internal/common"
+	"github.com/dnstapir/tapir-analyse-lib/common"
 )
 
 const c_N_HANDLERS = 3
@@ -49,8 +49,9 @@ type nats interface {
 	Shutdown() error
 }
 
-type libtapir interface {
+type libtapir interface { // TODO create own libtapir handle instead of injecting
 	ExtractDomain([]byte) (string, error)
+	NormalizeDomainNameSuffix(string) string
 }
 
 func Create(conf Conf) (*appHandle, error) {
@@ -83,7 +84,7 @@ func Create(conf Conf) (*appHandle, error) {
 	if conf.LooptestMatchSuffix == "" {
 		a.log.Warning("No match suffix given for looptests. Will only run ticker tests")
 	}
-	a.looptestMatchSuffix = strings.ToLower(strings.Trim(conf.LooptestMatchSuffix, "."))
+	a.looptestMatchSuffix = a.libtapirHandle.NormalizeDomainNameSuffix(conf.LooptestMatchSuffix) // TODO normalize suffix in libtapir to use here differenciate between domain suffix and subject suffix
 
 	a.log.Debug("Main app debug logging enabled")
 	return a, nil
@@ -202,7 +203,10 @@ func (a *appHandle) handleMsg(ctx context.Context, msg common.NatsMsg) {
 	}
 
 	if !strings.HasSuffix(msgDomain, "."+a.looptestMatchSuffix) {
+		a.log.Debug("No match: %s", msgDomain)
 		return
+	} else {
+		a.log.Debug("Looptest domain match: %s", msgDomain)
 	}
 
 	err = a.natsHandle.SetObservationLooptest(ctx, msgDomain)
