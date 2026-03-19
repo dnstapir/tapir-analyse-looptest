@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"os"
 	"os/signal"
 	"sync"
@@ -11,12 +10,12 @@ import (
 
 	"github.com/pelletier/go-toml/v2"
 
+	"github.com/dnstapir/tapir-analyse-lib/common"
+	"github.com/dnstapir/tapir-analyse-lib/libtapir"
+	"github.com/dnstapir/tapir-analyse-lib/logger"
+
 	"github.com/dnstapir/tapir-analyse-looptest/internal/api"
 	"github.com/dnstapir/tapir-analyse-looptest/internal/app"
-	"github.com/dnstapir/tapir-analyse-looptest/internal/cert"
-	"github.com/dnstapir/tapir-analyse-looptest/internal/common"
-	"github.com/dnstapir/tapir-analyse-looptest/internal/libtapir"
-	"github.com/dnstapir/tapir-analyse-looptest/internal/logger"
 	"github.com/dnstapir/tapir-analyse-looptest/internal/nats"
 )
 
@@ -29,7 +28,6 @@ type conf struct {
 	app.Conf
 	Debug    bool          `toml:"debug"`
 	Api      api.Conf      `toml:"api"`
-	Cert     cert.Conf     `toml:"cert"`
 	Nats     nats.Conf     `toml:"nats"`
 	Libtapir libtapir.Conf `toml:"libtapir"`
 }
@@ -57,13 +55,10 @@ func main() {
 	)
 	flag.Parse()
 
-	log, err := logger.Create(
+	log := logger.New(
 		logger.Conf{
 			Debug: debugFlag,
 		})
-	if err != nil {
-		panic(fmt.Sprintf("Could not create logger, err: '%s'", err))
-	}
 
 	log.Info("tapir-analyse-looptest, commit: '%s'", commit)
 	if runVersionCmd {
@@ -102,7 +97,7 @@ func main() {
 	 ********************** SET UP NATS *******************************
 	 ******************************************************************
 	 */
-	natslog, err := logger.Create(
+	natslog := logger.New(
 		logger.Conf{
 			Debug: debugFlag || mainConf.Nats.Debug,
 		})
@@ -129,36 +124,17 @@ func main() {
 	 ********************** SET UP LIBTAPIR ***************************
 	 ******************************************************************
 	 */
-	libtapirlog, err := logger.Create(
-		logger.Conf{
-			Debug: debugFlag || mainConf.Libtapir.Debug,
-		})
-	if err != nil {
-		log.Error("Error creating libtapir log: %s", err)
-		os.Exit(-1)
-	}
-
-	mainConf.Libtapir.Log = libtapirlog
-	libtapirHandle, err := libtapir.Create(mainConf.Libtapir)
-	if err != nil {
-		log.Error("Could not create libtapir handle: %s", err)
-		os.Exit(-1)
-	}
+	libtapirHandle := libtapir.New(mainConf.Libtapir)
 
 	/*
 	 ******************************************************************
 	 ********************** SET UP MAIN APP ***************************
 	 ******************************************************************
 	 */
-	applog, err := logger.Create(
+	applog := logger.New(
 		logger.Conf{
 			Debug: debugFlag || mainConf.Debug,
 		})
-	if err != nil {
-		log.Error("Error creating app log: %s", err)
-		os.Exit(-1)
-	}
-
 	mainConf.Log = applog
 	mainConf.NatsHandle = natsHandle
 	mainConf.LibtapirHandle = libtapirHandle
@@ -170,41 +146,15 @@ func main() {
 
 	/*
 	 ******************************************************************
-	 ********************** SET UP CERT HANDLER ***********************
-	 ******************************************************************
-	 */
-	certlog, err := logger.Create(
-		logger.Conf{
-			Debug: debugFlag || mainConf.Cert.Debug,
-		})
-	if err != nil {
-		log.Error("Error creating cert log: %s", err)
-		os.Exit(-1)
-	}
-
-	mainConf.Cert.Log = certlog
-	certHandle, err := cert.Create(mainConf.Cert)
-	if err != nil {
-		log.Error("Error creating cert manager: '%s'", err)
-		os.Exit(-1)
-	}
-
-	/*
-	 ******************************************************************
 	 ********************** SET UP API ********************************
 	 ******************************************************************
 	 */
-	apilog, err := logger.Create(
+	apilog := logger.New(
 		logger.Conf{
 			Debug: debugFlag || mainConf.Api.Debug,
 		})
-	if err != nil {
-		log.Error("Error creating API log: %s", err)
-		os.Exit(-1)
-	}
 	mainConf.Api.Log = apilog
 	mainConf.Api.App = appHandle
-	mainConf.Api.Certs = certHandle
 	apiHandle, err := api.Create(mainConf.Api)
 	if err != nil {
 		log.Error("Error creating API: '%s'", err)
@@ -229,7 +179,6 @@ func main() {
 	var wg sync.WaitGroup
 	wg.Go(func() { appHandle.Run(ctx, exitCh) })
 	wg.Go(func() { apiHandle.Run(ctx, exitCh) })
-	wg.Go(func() { certHandle.Run(ctx, exitCh) })
 
 	log.Info("Threads started!")
 
