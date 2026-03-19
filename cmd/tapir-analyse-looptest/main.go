@@ -101,10 +101,6 @@ func main() {
 		logger.Conf{
 			Debug: debugFlag || mainConf.Nats.Debug,
 		})
-	if err != nil {
-		log.Error("Error creating nats log: %s", err)
-		os.Exit(-1)
-	}
 
 	envNatsUrl, overrideNatsUrl := os.LookupEnv(env_DNSTAPIR_NATS_URL)
 	if overrideNatsUrl {
