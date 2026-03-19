@@ -4,7 +4,7 @@ go 1.25.6
 
 require (
 	github.com/dnstapir/edm v0.0.0-20260127093020-49e2140c43d6
-	github.com/nats-io/nats.go v1.48.0
+	github.com/nats-io/nats.go v1.49.0
 	github.com/pelletier/go-toml/v2 v2.2.4
 )
 
@@ -12,7 +12,7 @@ require (
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/klauspost/compress v1.18.3 // indirect
 	github.com/miekg/dns v1.1.72 // indirect
-	github.com/nats-io/nkeys v0.4.11 // indirect
+	github.com/nats-io/nkeys v0.4.12 // indirect
 	github.com/nats-io/nuid v1.0.1 // indirect
 	golang.org/x/crypto v0.47.0 // indirect
 	golang.org/x/mod v0.32.0 // indirect
