@@ -84,7 +84,7 @@ func (a *apiHandle) Run(ctx context.Context, exitCh chan<- common.Exit) {
 	go func() {
 		defer wg.Done()
 
-		err = srv.ListenAndServeTLS("", "")
+		err = srv.ListenAndServe()
 		if errors.Is(err, http.ErrServerClosed) {
 			a.log.Info("API server closing")
 			err = nil
@@ -96,8 +96,12 @@ func (a *apiHandle) Run(ctx context.Context, exitCh chan<- common.Exit) {
 
 	<-ctx.Done()
 	a.log.Info("Shutting down API")
-	shutdownCtx, _ := context.WithTimeout(context.Background(), time.Second*2)
-	srv.Shutdown(shutdownCtx)
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*2)
+	defer cancel()
+	err = srv.Shutdown(shutdownCtx)
+	if err != nil {
+		a.log.Error("Bad API server shutdown: '%s'", err)
+	}
 	wg.Wait()
 
 	exitCh <- common.Exit{ID: a.id, Err: err}
